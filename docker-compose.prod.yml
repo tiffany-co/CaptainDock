@@ -1,7 +1,4 @@
 # Docker Compose file for the PRODUCTION environment.
-# Ports are now sourced from the .env file.
-
-version: '3.8'
 
 services:
   # Backend Application Service
@@ -9,16 +6,19 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    volumes:
-      - ./backend:/app
     ports:
-      # Expose the application's port to the host.
       - "${BACKEND_PORT}:8000"
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     env_file:
       - .env
+    environment:
+      # Override POSTGRES_SERVER for the container network
+      - POSTGRES_SERVER=db
+    # --- REMOVED: The command is now handled by the Dockerfile's ENTRYPOINT ---
 
   # PostgreSQL Database Service
   db:
@@ -30,10 +30,25 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
 
+    # WARNING: In production mode, this section should be commented out!
+    ports:
+      - "${DB_PORT}:5432"
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   # Redis Caching Service
   redis:
     image: redis:6-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  # Define the named volume for PostgreSQL data persistence.
   postgres_data:
+
