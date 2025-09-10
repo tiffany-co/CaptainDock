@@ -1,29 +1,45 @@
-# Makefile for simplifying common development tasks.
-# This version is cleaned up and uses a more cross-platform friendly syntax.
+# Makefile - A developer's swiss army knife
+# This version incorporates more advanced Docker and database commands.
 
-# Define variables for docker-compose files to make commands cleaner.
+# --- VARIABLES ---
 DOCKER_COMPOSE_DEV = docker-compose -f docker-compose.dev.yml
 DOCKER_COMPOSE_PROD = docker-compose -f docker-compose.prod.yml
 
-# Using .PHONY to ensure these targets run as commands, not as file checks.
-.PHONY: all help up-dev down-dev up-prod down-prod create-admin truncate-db seed-db
-
-# The default command that runs when you just type "make".
+# --- DEFAULT COMMAND ---
+.PHONY: all help
 all: help
 
-# Help command to display available commands and their descriptions.
+# --- HELP ---
+.PHONY: help
 help:
-	@echo Usage: make [command]
-	@echo Commands:
-	@echo   up-dev          - Start the development environment.
-	@echo   down-dev        - Stop the development environment.
-	@echo   up-prod         - Start the production environment.
-	@echo   down-prod       - Stop the production environment.
-	@echo   create-admin    - (Not Implemented) Create an admin user.
-	@echo   truncate-db     - (Not Implemented) Truncate all database tables.
-	@echo   seed-db         - (Not Implemented) Seed the database with initial data.
+	@echo "Usage: make [command]"
+	@echo ""
+	@echo "---------------- Development Environment ----------------"
+	@echo "  up-dev              - Start development containers (Postgres, Redis)."
+	@echo "  down-dev            - Stop development containers."
+	@echo "  down-dev-volume     - Stop dev containers and remove the database volume."
+	@echo ""
+	@echo "---------------- Production Environment -----------------"
+	@echo "  up-prod             - Start production containers using existing images."
+	@echo "  up-prod-build       - Rebuild images and start production containers."
+	@echo "  up-prod-build-debug - Rebuild and run in the foreground for debugging."
+	@echo "  down-prod           - Stop production containers."
+	@echo "  down-prod-volume    - Stop prod containers and remove all volumes."
+	@echo ""
+	@echo "---------------- Database Management ------------------"
+	@echo "  db-migrate          - Generate a new Alembic migration script."
+	@echo "  db-upgrade          - Apply database migrations to the dev DB."
+	@echo "  db-downgrade        - Revert the last database migration on the dev DB."
+	@echo ""
+	@echo "---------------- Utilities ----------------------------"
+	@echo "  create-admin        - Create an admin user for the dev DB."
+	@echo "  truncate-db         - [DANGEROUS] Truncate the dev DB."
+	@echo "  create-admin-prod   - Create an admin user in the running prod container."
+	@echo "  truncate-db-prod    - [DANGEROUS] Truncate the prod DB via the container."
 
-# --- Development Environment Commands ---
+
+# --- DEVELOPMENT ENVIRONMENT COMMANDS ---
+.PHONY: up-dev down-dev down-dev-volume
 up-dev:
 	@echo Starting development environment...
 	$(DOCKER_COMPOSE_DEV) up -d
@@ -32,24 +48,60 @@ down-dev:
 	@echo Stopping development environment...
 	$(DOCKER_COMPOSE_DEV) down
 
-# --- Production Environment Commands ---
+down-dev-volume:
+	@echo Stopping development environment and removing volumes...
+	$(DOCKER_COMPOSE_DEV) down -v
+
+# --- PRODUCTION ENVIRONMENT COMMANDS ---
+.PHONY: up-prod up-prod-build up-prod-build-debug down-prod down-prod-volume
 up-prod:
 	@echo Starting production environment...
 	$(DOCKER_COMPOSE_PROD) up -d
+
+up-prod-build:
+	@echo Rebuilding and starting production environment...
+	$(DOCKER_COMPOSE_PROD) up -d --build
+
+up-prod-build-debug:
+	@echo Rebuilding and starting production environment in foreground...
+	$(DOCKER_COMPOSE_PROD) up --build
 
 down-prod:
 	@echo Stopping production environment...
 	$(DOCKER_COMPOSE_PROD) down
 
-# --- Database Management Commands (Placeholders) ---
-create-admin:
-	@echo Creating admin user...
-	@echo Admin user creation script needs to be implemented.
+down-prod-volume:
+	@echo Stopping production environment and removing volumes...
+	$(DOCKER_COMPOSE_PROD) down -v
+
+# --- DATABASE MANAGEMENT COMMANDS (LOCAL/DEV) ---
+.PHONY: db-migrate db-upgrade db-downgrade truncate-db
+db-migrate:
+	cd backend && poetry run alembic revision --autogenerate -m "New migration"
+
+db-upgrade:
+	cd backend && poetry run alembic upgrade head
+
+db-downgrade:
+	cd backend && poetry run alembic downgrade -1
 
 truncate-db:
-	@echo Truncating database...
-	@echo Database truncation script needs to be implemented.
+	@echo Running database truncate script on dev DB...
+	cd backend && poetry run python scripts/truncate_db.py
 
-seed-db:
-	@echo Seeding database...
-	@echo Database seeding script needs to be implemented.
+# --- UTILITIES (LOCAL/DEV) ---
+.PHONY: create-admin
+create-admin:
+	@echo Creating admin user on dev DB...
+	cd backend && poetry run python scripts/create_admin.py
+
+# --- PRODUCTION MANAGEMENT COMMANDS (RUNNING ON CONTAINER) ---
+.PHONY: create-admin-prod truncate-db-prod
+create-admin-prod:
+	@echo Creating admin user in the production container...
+	$(DOCKER_COMPOSE_PROD) exec backend python scripts/create_admin.py
+
+truncate-db-prod:
+	@echo Running database truncate script in the production container...
+	$(DOCKER_COMPOSE_PROD) exec backend python scripts/truncate_db.py
+
