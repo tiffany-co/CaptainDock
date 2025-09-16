@@ -1,71 +1,110 @@
 
-# Gold Shop Management - CaptainDock
+# Gold Shop Management System
 
-This repository is the central orchestration layer for the Gold Shop Management application. It uses Docker Compose and Git submodules to manage the `backend` and `frontend` services, ensuring a consistent development and production environment.
+## Overview
 
-## 🚀 Getting Started
+This repository, `CaptainDock`, is the central hub for the Gold Shop Management System. It orchestrates the entire full-stack application, which includes a FastAPI backend, a frontend user interface, and the necessary database and caching services, all managed with Docker.
 
-Follow these steps to set up the project on a new machine.
+This document provides instructions for setting up, running, and managing the entire project.
 
-### 1. Clone the Repository
+## Prerequisites
 
-This project uses Git submodules. You must use the `--recurse-submodules` flag to clone the repository and automatically initialize and clone the `backend` and `frontend` repositories.
+Before you begin, ensure you have the following tools installed on your system:
 
-```bash
-git clone --recurse-submodules https://github.com/tiffany-co/CaptainDock
-cd captaindock
-
-```
-
-### 2. Configure Your Environment
-
-The project requires an `.env` file in the root directory to store sensitive information and environment-specific settings.
-
--   Copy the example file: `cp .env.example .env`
+-   **Git:** For version control. [Installation Guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git "null")
     
--   Open the new `.env` file and customize the variables if necessary (e.g., change the default passwords or ports).
+-   **Docker & Docker Compose:** For running the application in containers. [Install Docker Desktop](https://www.docker.com/products/docker-desktop/ "null")
+    
+-   **Make:** A command-line utility to simplify complex commands.
+    
+    -   **macOS/Linux:** Usually pre-installed. You can check with `make -v`.
+        
+    -   **Windows:** Can be installed via [Chocolatey](https://community.chocolatey.org/packages/make "null") (`choco install make`) or by using a terminal like Git Bash or WSL which include it.
+        
+
+## Getting Started
+
+1.  **Clone the Repository:** Clone this repository along with its submodules (`backend`, `frontend`) using the `--recurse-submodules` flag. This is crucial.
+    
+    ```
+    git clone --recurse-submodules <your-repository-url>
+    cd CaptainDock
+    
+    ```
+    
+2.  **Configure Environment:** The project uses a `.env` file for configuration. Create one by copying the example file:
+    
+    ```
+    cp .env.example .env
+    
+    ```
+    
+    The default values in this file are suitable for local development. You do not need to change them to get started.
     
 
-### 3. Branching Strategy
+## Git Workflow
 
-This project follows a standard Git flow:
+This project follows a standard Git flow model:
 
--   **`develop` branch:** All ongoing development and new features are merged into this branch. This is the primary branch for day-to-day work.
+-   `develop`: This is the primary branch for all ongoing development. All new feature branches should be based on `develop` and merged back into it.
     
--   **`main` branch:** This branch is protected and contains only stable, tagged release versions. Code is merged from `develop` into `main` only when a new release is ready.
+-   `main`: This branch contains only stable, tagged releases. It should **never** be committed to directly. Releases are made by merging `develop` into `main`.
     
 
-## 🛠️ Development Workflow
-
-The development environment is designed to be flexible, running the backend code locally for easy debugging while using Docker for stateful services like the database.
-
-For detailed instructions on setting up and running the backend locally, please refer to the [**Backend README**](https://github.com/tiffany-co/backend)
-
-## 🚢 Production Workflow
-
-The production environment is fully containerized for consistency and reliability.
-
-### Running in Production
-
-To build the images and start all services, run:
+**Updating the Project:** To pull the latest changes for this repository and all its submodules, run:
 
 ```
-make up-prod-build
+git pull --recurse-submodules
 
 ```
 
-This will build the Docker images for the `backend` and `frontend`, start the containers, and automatically run database migrations.
+## Development Workflow (Local)
 
-To stop the production services, run:
+In development mode, the databases run inside Docker containers, but the backend and frontend code run directly on your local machine for easier debugging and hot-reloading.
+
+### 1. Running the Backend
+
+The backend is a FastAPI application. For detailed instructions on its setup, project structure, and database migrations, please refer to its dedicated documentation:
+
+> [**backend/README.md**](https://www.google.com/search?q=./backend/README.md "null")
+
+### 2. Running the Frontend
+
+The frontend is a simple application. For instructions on its setup and development workflow, please refer to its dedicated documentation:
+
+> [**frontend/README.md**](https://www.google.com/search?q=./frontend/README.md "null")
+
+### 3. Starting Services
+
+From the `CaptainDock` root directory, start the required database and Redis containers:
 
 ```
-make down-prod
+make up-dev
 
 ```
 
-### Managing the Production Environment
+## Production Workflow (Docker)
 
-The `Makefile` provides safe and convenient commands to manage your running production application.
+In production mode, the entire application stack (backend, database, Redis) runs inside Docker containers, managed by `docker-compose.prod.yml`.
+
+-   **Build and Start:** To build the Docker images and start the services in the background:
+    
+    ```
+    make up-prod-build
+    
+    ```
+    
+-   **Stop:** To stop the production services:
+    
+    ```
+    make down-prod
+    
+    ```
+    
+
+### Managing the Production Database
+
+You can run administrative tasks on the production database via the running `backend` container.
 
 -   **Create an Admin User:**
     
@@ -74,7 +113,14 @@ The `Makefile` provides safe and convenient commands to manage your running prod
     
     ```
     
--   **Truncate the Database (DANGEROUS):** This will delete all data and reset the database to a clean state.
+-   **Seed Demo Data:**
+    
+    ```
+    make seed-db-prod
+    
+    ```
+    
+-   **Truncate the Database (DANGEROUS):**
     
     ```
     make truncate-db-prod
@@ -82,22 +128,39 @@ The `Makefile` provides safe and convenient commands to manage your running prod
     ```
     
 
-## 🧰 Tools and Troubleshooting
+## Tools
 
-### Make
+### Using Make
 
-This project relies on `make` to simplify complex commands.
+This project uses a `Makefile` to provide simple, memorable commands for common operations. To see a full list of available commands and their descriptions, run:
 
--   **Installation (Linux):** Usually pre-installed. If not, use your package manager (e.g., `sudo apt-get install build-essential`).
+```
+make help
+
+```
+
+### Database Monitoring with DBeaver
+
+A graphical tool like [DBeaver](https://dbeaver.io/ "null") is highly recommended for viewing and managing the database.
+
+**Connection Settings:**
+
+-   **Host:**  `localhost`
     
--   **Installation (Windows):** The easiest way is to install it via [Chocolatey](https://chocolatey.org/): `choco install make`.
+-   **Database:**  `app` (or the value of `POSTGRES_DB` in your `.env` file)
     
--   **Usage:** To see all available commands, simply run `make` from the root directory.
+-   **Port:**  `5433` (or the value of `DB_PORT` in your `.env` file)
+    
+-   **Username:**  `user` (or the value of `POSTGRES_USER`)
+    
+-   **Password:**  `password` (or the value of `POSTGRES_PASSWORD`)
     
 
-### Windows Port Conflicts
+## Troubleshooting
 
-Occasionally on Windows, the ports used by Docker may be reserved by the system. If you encounter errors related to a port being unavailable, you can try resetting the Windows NAT driver. Run these commands in an **Administrator PowerShell or Command Prompt**:
+### Port Conflicts on Windows
+
+Sometimes, Windows services may reserve the ports used by Docker. If you encounter errors related to a port being "already in use," you can often resolve it by running the following commands in an **Administrator PowerShell or Command Prompt**:
 
 ```
 net stop winnat
@@ -105,18 +168,4 @@ net start winnat
 
 ```
 
-### Database Monitoring with DBeaver
-
-For a powerful and user-friendly GUI to view and manage your database, we recommend **DBeaver**.
-
--   **Download:**  [DBeaver Community Edition](https://dbeaver.io/download/) [unlimit version - soft98](https://soft98.ir/software/programming/2962-dbeaver.html)
-    
--   **Connection Settings (for both Dev and Prod):**
-    
-    -   **Host:**  `localhost`
-        
-    -   **Port:** The `DB_PORT` you set in your `.env` file (default is `5432`).
-        
-    -   **Database:** The `POSTGRES_DB` from your `.env` file.
-        
-    -   **Username/Password:** The credentials from your `.env` file.
+Then, try running your `make` command again.
