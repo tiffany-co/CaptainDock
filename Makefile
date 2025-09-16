@@ -30,6 +30,8 @@ help:
 	@echo "  db-migrate          - Generate a new Alembic migration script."
 	@echo "  db-upgrade          - Apply database migrations to the dev DB."
 	@echo "  db-downgrade        - Revert the last database migration on the dev DB."
+	@echo "  seed-db             - [DEMO] Seed the dev DB with sample data."
+	@echo "  seed-db-prod        - [DEMO] Seed the prod DB with sample data."
 	@echo ""
 	@echo "---------------- Utilities ----------------------------"
 	@echo "  create-admin        - Create an admin user for the dev DB."
@@ -75,7 +77,7 @@ down-prod-volume:
 	$(DOCKER_COMPOSE_PROD) down -v
 
 # --- DATABASE MANAGEMENT COMMANDS (LOCAL/DEV) ---
-.PHONY: db-migrate db-upgrade db-downgrade truncate-db
+.PHONY: db-migrate db-upgrade db-downgrade truncate-db seed-db
 db-migrate:
 	cd backend && poetry run alembic revision --autogenerate -m "New migration"
 
@@ -89,6 +91,10 @@ truncate-db:
 	@echo Running database truncate script on dev DB...
 	cd backend && poetry run python scripts/truncate_db.py
 
+seed-db:
+	@echo Seeding demo data into the dev DB...
+	cd backend && poetry run python scripts/seed_demo_data.py
+
 # --- UTILITIES (LOCAL/DEV) ---
 .PHONY: create-admin
 create-admin:
@@ -96,7 +102,7 @@ create-admin:
 	cd backend && poetry run python scripts/create_admin.py
 
 # --- PRODUCTION MANAGEMENT COMMANDS (RUNNING ON CONTAINER) ---
-.PHONY: create-admin-prod truncate-db-prod
+.PHONY: create-admin-prod truncate-db-prod seed-db-prod
 create-admin-prod:
 	@echo Creating admin user in the production container...
 	$(DOCKER_COMPOSE_PROD) exec backend python scripts/create_admin.py
@@ -105,3 +111,6 @@ truncate-db-prod:
 	@echo Running database truncate script in the production container...
 	$(DOCKER_COMPOSE_PROD) exec backend python scripts/truncate_db.py
 
+seed-db-prod:
+	@echo Seeding demo data into the production container...
+	$(DOCKER_COMPOSE_PROD) exec backend python scripts/seed_demo_data.py
