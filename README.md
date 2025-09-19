@@ -11,15 +11,15 @@ This document provides instructions for setting up, running, and managing the en
 
 Before you begin, ensure you have the following tools installed on your system:
 
--   **Git:** For version control. [Installation Guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git "null")
+-   **Git:** For version control. [Installation Guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
     
--   **Docker & Docker Compose:** For running the application in containers. [Install Docker Desktop](https://www.docker.com/products/docker-desktop/ "null")
+-   **Docker & Docker Compose:** For running the application in containers. [Install Docker Desktop](https://www.docker.com/products/docker-desktop/)
     
 -   **Make:** A command-line utility to simplify complex commands.
     
     -   **macOS/Linux:** Usually pre-installed. You can check with `make -v`.
         
-    -   **Windows:** Can be installed via [Chocolatey](https://community.chocolatey.org/packages/make "null") (`choco install make`) or by using a terminal like Git Bash or WSL which include it.
+    -   **Windows:** Can be installed via [Chocolatey](https://community.chocolatey.org/packages/make) (`choco install make`) or by using a terminal like Git Bash or WSL which include it.
         
 
 ## Getting Started
@@ -66,13 +66,13 @@ In development mode, the databases run inside Docker containers, but the backend
 
 The backend is a FastAPI application. For detailed instructions on its setup, project structure, and database migrations, please refer to its dedicated documentation:
 
-> [**backend/README.md**](https://www.google.com/search?q=./backend/README.md "null")
+> [**backend/README.md**](https://github.com/tiffany-co/backend)
 
 ### 2. Running the Frontend
 
 The frontend is a simple application. For instructions on its setup and development workflow, please refer to its dedicated documentation:
 
-> [**frontend/README.md**](https://www.google.com/search?q=./frontend/README.md "null")
+> [**frontend/README.md**](https://github.com/tiffany-co/frontend)
 
 ### 3. Starting Services
 
@@ -141,7 +141,7 @@ make help
 
 ### Database Monitoring with DBeaver
 
-A graphical tool like [DBeaver](https://dbeaver.io/ "null") is highly recommended for viewing and managing the database.
+A graphical tool like [DBeaver](https://dbeaver.io/) is highly recommended for viewing and managing the database.
 
 **Connection Settings:**
 
