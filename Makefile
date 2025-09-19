@@ -34,10 +34,12 @@ help:
 	@echo "  seed-db-prod        - [DEMO] Seed the prod DB with sample data."
 	@echo ""
 	@echo "---------------- Utilities ----------------------------"
-	@echo "  create-admin        - Create an admin user for the dev DB."
-	@echo "  truncate-db         - [DANGEROUS] Truncate the dev DB."
-	@echo "  create-admin-prod   - Create an admin user in the running prod container."
-	@echo "  truncate-db-prod    - [DANGEROUS] Truncate the prod DB via the container."
+	@echo "  create-admin               - Create an admin user for the dev DB."
+	@echo "  truncate-db                - [DANGEROUS] Truncate the dev DB."
+	@echo "  truncate-audit-log         - [AUDITLOG] Truncate the dev Audit log."
+	@echo "  create-admin-prod          - Create an admin user in the running prod container."
+	@echo "  truncate-db-prod           - [DANGEROUS] Truncate the prod DB via the container."
+	@echo "  truncate-audit-log-prod    - [AUDITLOG] Truncate the prod Audit log via the container."
 
 
 # --- DEVELOPMENT ENVIRONMENT COMMANDS ---
@@ -77,7 +79,7 @@ down-prod-volume:
 	$(DOCKER_COMPOSE_PROD) down -v
 
 # --- DATABASE MANAGEMENT COMMANDS (LOCAL/DEV) ---
-.PHONY: db-migrate db-upgrade db-downgrade truncate-db seed-db
+.PHONY: db-migrate db-upgrade db-downgrade truncate-db seed-db truncate-audit-log
 db-migrate:
 	cd backend && poetry run alembic revision --autogenerate -m "New migration"
 
@@ -95,6 +97,10 @@ seed-db:
 	@echo Seeding demo data into the dev DB...
 	cd backend && poetry run python scripts/seed_demo_data.py
 
+truncate-audit-log:
+	@echo Truncating audit log table on dev DB...
+	cd backend && poetry run python scripts/truncate_audit_log.py
+
 # --- UTILITIES (LOCAL/DEV) ---
 .PHONY: create-admin
 create-admin:
@@ -102,7 +108,7 @@ create-admin:
 	cd backend && poetry run python scripts/create_admin.py
 
 # --- PRODUCTION MANAGEMENT COMMANDS (RUNNING ON CONTAINER) ---
-.PHONY: create-admin-prod truncate-db-prod seed-db-prod
+.PHONY: create-admin-prod truncate-db-prod seed-db-prod truncate-audit-log-prod
 create-admin-prod:
 	@echo Creating admin user in the production container...
 	$(DOCKER_COMPOSE_PROD) exec backend python scripts/create_admin.py
@@ -114,3 +120,7 @@ truncate-db-prod:
 seed-db-prod:
 	@echo Seeding demo data into the production container...
 	$(DOCKER_COMPOSE_PROD) exec backend python scripts/seed_demo_data.py
+
+truncate-audit-log-prod:
+	@echo Truncating audit log table in the production container...
+	$(DOCKER_COMPOSE_PROD) exec backend python scripts/truncate_audit_log.py
