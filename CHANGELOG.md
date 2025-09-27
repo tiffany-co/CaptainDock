@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0](https://github.com/tiffany-co/CaptainDock/releases/tag/v1.0.0) - 2025-09-27
+### Changed
+- Updated to the latest backend version (including payment system) [see more details here](https://github.com/tiffany-co/backend/blob/main/CHANGELOG.md)
+
 ## [0.5.0](https://github.com/tiffany-co/CaptainDock/releases/tag/v0.5.0) - 2025-09-24
 ### Changed
 - backend module [updated](https://github.com/tiffany-co/backend/blob/main/CHANGELOG.md) (transaction added)
