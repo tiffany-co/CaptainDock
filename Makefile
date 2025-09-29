@@ -30,8 +30,10 @@ help:
 	@echo "  db-migrate          - Generate a new Alembic migration script."
 	@echo "  db-upgrade          - Apply database migrations to the dev DB."
 	@echo "  db-downgrade        - Revert the last database migration on the dev DB."
-	@echo "  seed-db             - [DEMO] Seed the dev DB with sample data."
-	@echo "  seed-db-prod        - [DEMO] Seed the prod DB with sample data."
+	@echo "  seed-db             - [INITIAL] Seed the dev DB with permissions and items."
+	@echo "  seed-db-prod        - [INITIAL] Seed the prod DB with permissions and items."
+	@echo "  seed-demo           - [DEMO] Add sample users and contacts to the dev DB."
+	@echo "  seed-demo-prod      - [DEMO] Add sample users and contacts to the prod DB."
 	@echo ""
 	@echo "---------------- Utilities ----------------------------"
 	@echo "  create-admin               - Create an admin user for the dev DB."
@@ -94,6 +96,10 @@ truncate-db:
 	cd backend && poetry run python scripts/truncate_db.py
 
 seed-db:
+	@echo Seeding initial data into the dev DB...
+	cd backend && poetry run python scripts/seed_db.py
+
+seed-demo:
 	@echo Seeding demo data into the dev DB...
 	cd backend && poetry run python scripts/seed_demo_data.py
 
@@ -118,9 +124,21 @@ truncate-db-prod:
 	$(DOCKER_COMPOSE_PROD) exec backend python scripts/truncate_db.py
 
 seed-db-prod:
+	@echo Seeding initial data into the production container...
+	$(DOCKER_COMPOSE_PROD) exec backend python scripts/seed_db.py
+
+seed-demo-prod:
 	@echo Seeding demo data into the production container...
 	$(DOCKER_COMPOSE_PROD) exec backend python scripts/seed_demo_data.py
 
 truncate-audit-log-prod:
 	@echo Truncating audit log table in the production container...
 	$(DOCKER_COMPOSE_PROD) exec backend python scripts/truncate_audit_log.py
+
+# --- temporary ---
+.PHONY: db-reset
+db-reset:
+	@echo "Resetting database (truncate -> seed-db -> seed-demo)..."
+	@cd backend && poetry run python scripts/truncate_db.py --yes
+	@$(MAKE) seed-db
+	@$(MAKE) seed-demo
