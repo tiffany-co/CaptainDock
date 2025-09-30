@@ -42,7 +42,13 @@ help:
 	@echo "  create-admin-prod          - Create an admin user in the running prod container."
 	@echo "  truncate-db-prod           - [DANGEROUS] Truncate the prod DB via the container."
 	@echo "  truncate-audit-log-prod    - [AUDITLOG] Truncate the prod Audit log via the container."
-
+	@echo ""
+	@echo "---------------- Native DB Backups (pg_dump) ----------"
+	@echo "  db-backup-dev       - Create a native backup of the development database."
+	@echo "  db-restore-dev      - Restore the dev DB from a native backup file."
+	@echo "  db-backup-prod      - Create a native backup of the production database."
+	@echo "  db-restore-prod     - [DANGEROUS] Restore the prod DB from a native backup file."
+	@echo "  db-clear-backups    - [DANGEROUS] Deletes all local backup files."
 
 # --- DEVELOPMENT ENVIRONMENT COMMANDS ---
 .PHONY: up-dev down-dev down-dev-volume
@@ -134,6 +140,25 @@ seed-demo-prod:
 truncate-audit-log-prod:
 	@echo Truncating audit log table in the production container...
 	$(DOCKER_COMPOSE_PROD) exec backend python scripts/truncate_audit_log.py
+
+# --- NATIVE DATABASE BACKUP & RESTORE ---
+.PHONY: db-backup-dev db-restore-dev db-backup-prod db-restore-prod db-clear-backups
+
+db-backup-dev:
+	poetry -C backend run python scripts/db_backup.py backup --env dev
+
+db-restore-dev:
+	poetry -C backend run python scripts/db_backup.py restore --env dev
+
+db-backup-prod:
+	poetry -C backend run python scripts/db_backup.py backup --env prod
+
+db-restore-prod:
+	poetry -C backend run python scripts/db_backup.py restore --env prod
+
+db-clear-backups:
+	@echo "Clearing all local backup files..."
+	poetry -C backend run python scripts/db_backup.py clear
 
 # --- temporary ---
 .PHONY: db-reset

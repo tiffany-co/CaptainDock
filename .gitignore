@@ -122,3 +122,6 @@ ENV/
 
 # gfr
 .gfr.yml
+
+# Backup files
+/backups/
