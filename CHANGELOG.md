@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0](https://github.com/tiffany-co/CaptainDock/releases/tag/v1.3.0) - 2025-09-30
+### Changed
+- backend updated to new version ([details](https://github.com/tiffany-co/backend/blob/main/CHANGELOG.md))
+
 ## [1.2.0](https://github.com/tiffany-co/CaptainDock/releases/tag/v1.2.0) - 2025-09-29
 ### Changed
 - new environment variables including refresh token stuff
