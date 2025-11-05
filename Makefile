@@ -49,6 +49,11 @@ help:
 	@echo "  db-backup-prod      - Create a native backup of the production database."
 	@echo "  db-restore-prod     - [DANGEROUS] Restore the prod DB from a native backup file."
 	@echo "  db-clear-backups    - [DANGEROUS] Deletes all local backup files."
+	@echo ""
+	@echo "---------------- Testing --------------------------------"
+	@echo "  test                - Run all tests using pytest."
+	@echo "  test-cov            - Run all tests and generate a code coverage report."
+	@echo "  test-cov-html       - Run tests and generate an HTML coverage report."
 
 # --- DEVELOPMENT ENVIRONMENT COMMANDS ---
 .PHONY: up-dev down-dev down-dev-volume
@@ -159,6 +164,21 @@ db-restore-prod:
 db-clear-backups:
 	@echo "Clearing all local backup files..."
 	poetry -C backend run python scripts/db_backup.py clear
+
+
+# --- Testing ----------------------------------------
+.PHONY: test test-cov test-cov-html
+test:
+	@echo "Running all tests..."
+	cd backend && poetry run pytest
+
+test-cov:
+	@echo "Running all tests with coverage report..."
+	cd backend && poetry run pytest --cov=app
+
+test-cov-html:
+	@echo "Running tests and generating HTML coverage report..."
+	cd backend && poetry run pytest --cov=app --cov-report=html
 
 # --- temporary ---
 .PHONY: db-reset

@@ -125,3 +125,10 @@ ENV/
 
 # Backup files
 /backups/
+
+# ignore about how-much measurement tool
+.howmuchignore
+
+# code editor
+.vscode
+.pytest_cache
